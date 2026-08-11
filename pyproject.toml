@@ -10,6 +10,7 @@ dependencies = [
     "flake8-pyproject>=1.2.4",
     "mypy>=2.3.0",
     "pydantic>=2.13.4",
+    "uv>=0.12.1",
     "vllm>=0.26.0",
 ]
 

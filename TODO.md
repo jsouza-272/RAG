@@ -33,3 +33,15 @@ Rodar o Qwen3-0.6B localmente, testar geração com contexto
 Métricas de avaliação — implementar recall@k
 
 Quer que eu aprofunde algum desses pontos (ex: como o BM25 calcula score, ou exemplos de chunking pra código Python)?
+
+# Parser
+-	 cli input usando fire
+
+## Comandos e flags
+
+- index: Index the repository
+- search: Search for a single query
+- search_dataset: Process multiple questions and output search results
+- answer: Answer a single question with context
+- answer_dataset: Generate answers from search results
+- evaluate: Evaluate search results against ground truth

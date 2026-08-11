@@ -15,5 +15,7 @@ install:
 	fi
 	.venv/bin/uv sync;
 
+run: install
+	$(UV) run python3 -m src $(ARGS)
 
 .PHONY: install
