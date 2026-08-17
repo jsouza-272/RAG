@@ -9,7 +9,7 @@ class StudentCLI:
 
     def search(self, *args, **kargs):
         cargs = SearchArgs()
-        cargs
+        assert cargs
         print("Search", args, kargs)
 
     def search_dataset(self, *, dataset_path: str,
