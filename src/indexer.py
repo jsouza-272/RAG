@@ -1,10 +1,11 @@
-import ast
 import os
 import re
+import ast
 import json
 import math
-from .models import MinimalSource
+import bm25s
 from pathlib import Path
+from .models import MinimalSource
 
 
 def get_vllm_path() -> Path:
@@ -38,7 +39,8 @@ def dump_chunks(py_chunks: list[MinimalSource],
     path.parent.mkdir(mode=0o775, parents=True, exist_ok=True)
     path.touch(exist_ok=True)
     with open(path, mode="w") as file:
-        json.dump([c.dump() for c in py_chunks + md_chunks], file)
+        json.dump([c.dump() for c in py_chunks + md_chunks], file,
+                  indent=2)
 
 
 def build_index_by_line(source: str) -> list[int]:
@@ -51,7 +53,6 @@ def build_index_by_line(source: str) -> list[int]:
 def chunk_python_file(file_path: str,
                       max_chunk_size: int) -> list[MinimalSource]:
     chunks_list: list[MinimalSource] = []
-    current_chunks: list[dict] = []
     code = ""
     with open(file_path) as file:
         code = file.read()
@@ -62,7 +63,6 @@ def chunk_python_file(file_path: str,
     end_index = 0
     i = 0
     while i < len(ast_file.body):
-        current_chunks = []
         if isinstance(ast_file.body[i], ast.ClassDef):
             generic = False
             start_index = start_offsets[ast_file.body[i].lineno - 1]
@@ -87,14 +87,16 @@ def chunk_python_file(file_path: str,
                     ast_file.body[i].end_lineno - 1
                     ] + ast_file.body[i].end_col_offset
                 i += 1
-        current_chunks.append({"first_character_index": start_index,
-                               "last_character_index": end_index})
         if end_index - start_index > max_chunk_size:
-            current_chunks = split_chunk(
+            chunks_list.extend(split_chunk(
                 max_chunk_size, int(max_chunk_size * 0.1),
-                start_index, end_index)
-        chunks_list.extend(MinimalSource(file_path=file_path, **chunk)
-                           for chunk in current_chunks)
+                start_index, end_index, code, file_path))
+        else:
+            chunks_list.append(
+                MinimalSource(file_path=file_path,
+                              first_character_index=start_index,
+                              last_character_index=end_index,
+                              content=code[start_index:end_index]))
         if not generic:
             i += 1
     return chunks_list
@@ -102,7 +104,6 @@ def chunk_python_file(file_path: str,
 
 def chunk_md_file(file_path: str, max_chunk_size: int) -> list[MinimalSource]:
     chunks_list: list[MinimalSource] = []
-    current_chunks: list[dict] = []
     doc = ""
     with open(file_path) as file:
         doc = file.read()
@@ -114,7 +115,6 @@ def chunk_md_file(file_path: str, max_chunk_size: int) -> list[MinimalSource]:
     end_index = 0
     i = 0
     while i < len(doc_lines):
-        current_chunks = []
         start_index = start_offsets[i]
         i += 1
 
@@ -126,19 +126,20 @@ def chunk_md_file(file_path: str, max_chunk_size: int) -> list[MinimalSource]:
             i += 1
             loop = True
 
-        current_chunks.append({"first_character_index": start_index,
-                               "last_character_index": end_index})
-
         if end_index == start_index:
             i += 1
             continue
 
         if end_index - start_index > max_chunk_size:
-            current_chunks = split_chunk(
+            chunks_list.extend(split_chunk(
                 max_chunk_size, int(max_chunk_size * 0.1),
-                start_index, end_index)
-        chunks_list.extend(MinimalSource(file_path=file_path, **chunk)
-                           for chunk in current_chunks)
+                start_index, end_index, doc, file_path))
+        else:
+            chunks_list.append(
+                MinimalSource(file_path=file_path,
+                              first_character_index=start_index,
+                              last_character_index=end_index,
+                              content=doc[start_index:end_index]))
 
         if not loop:
             i += 1
@@ -148,14 +149,20 @@ def chunk_md_file(file_path: str, max_chunk_size: int) -> list[MinimalSource]:
 
 
 def split_chunk(max_chunk_size: int, overlap_size: int,
-                current_start: int, current_end: int) -> list[dict]:
+                current_start: int, current_end: int,
+                source: str, path: str) -> list[MinimalSource]:
     step = max_chunk_size - overlap_size
     min_chunks = math.ceil((current_end - current_start) / step)
     chunks: list[dict] = []
     for i in range(min_chunks):
-        chunk_info = {"first_character_index": current_start,
-                      "last_character_index": min(
-                          current_start + max_chunk_size, current_end)}
+        chunk_end = min(current_start + max_chunk_size, current_end)
+        chunks.append(MinimalSource(file_path=path,
+                                    first_character_index=current_start,
+                                    last_character_index=chunk_end,
+                                    content=source[current_start:chunk_end]))
         current_start += step
-        chunks.append(chunk_info)
     return chunks
+
+
+#def index_chunks():
+#        bm25s.
