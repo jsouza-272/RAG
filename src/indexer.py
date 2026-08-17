@@ -156,7 +156,7 @@ def split_chunk(max_chunk_size: int, overlap_size: int,
                 source: str, path: str) -> list[MinimalSource]:
     step = max_chunk_size - overlap_size
     min_chunks = math.ceil((current_end - current_start) / step)
-    chunks: list[dict] = []
+    chunks: list[MinimalSource] = []
     for i in range(min_chunks):
         chunk_end = min(current_start + max_chunk_size, current_end)
         chunks.append(MinimalSource(file_path=path,
