@@ -23,18 +23,18 @@ def get_vllm_path() -> Path:
     return path
 
 
-def get_all_files(path: Path, suffix: str):
-    python_file_list: list[Path] = []
+def get_all_files(path: Path, suffix: str) -> list[Path]:
+    file_list: list[Path] = []
     for p in path.iterdir():
         if p.is_file() and p.suffix == suffix:
-            python_file_list.append(p)
+            file_list.append(p)
         if p.is_dir():
-            python_file_list += get_all_files(p, suffix)
-    return python_file_list
+            file_list += get_all_files(p, suffix)
+    return file_list
 
 
 def dump_chunks(py_chunks: list[MinimalSource],
-                md_chunks: list[MinimalSource]):
+                md_chunks: list[MinimalSource]) -> None:
     path = Path("data/processed/chunks/chunks.json")
     path.parent.mkdir(mode=0o775, parents=True, exist_ok=True)
     path.touch(exist_ok=True)
@@ -50,7 +50,7 @@ def build_index_by_line(source: str) -> list[int]:
     return line_start_offsets
 
 
-def chunk_python_file(file_path: str,
+def chunk_python_file(file_path: Path,
                       max_chunk_size: int) -> list[MinimalSource]:
     chunks_list: list[MinimalSource] = []
     code = ""
@@ -66,16 +66,18 @@ def chunk_python_file(file_path: str,
         if isinstance(ast_file.body[i], ast.ClassDef):
             generic = False
             start_index = start_offsets[ast_file.body[i].lineno - 1]
-            end_index = start_offsets[
-                ast_file.body[i].end_lineno - 1
-                ] + ast_file.body[i].end_col_offset
+            node = ast_file.body[i]
+            assert node.end_lineno and node.end_col_offset
+            end_index = start_offsets[node.end_lineno - 1
+                                      ] + node.end_col_offset
         elif isinstance(ast_file.body[i],
                         (ast.FunctionDef, ast.AsyncFunctionDef)):
             generic = False
             start_index = start_offsets[ast_file.body[i].lineno - 1]
-            end_index = start_offsets[
-                ast_file.body[i].end_lineno - 1
-                ] + ast_file.body[i].end_col_offset
+            node = ast_file.body[i]
+            assert node.end_lineno and node.end_col_offset
+            end_index = start_offsets[node.end_lineno - 1
+                                      ] + node.end_col_offset
         else:
             start_index = start_offsets[ast_file.body[i].lineno - 1]
             generic = True
@@ -83,17 +85,18 @@ def chunk_python_file(file_path: str,
                    and not isinstance(
                        ast_file.body[i],
                        (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))):
-                end_index = start_offsets[
-                    ast_file.body[i].end_lineno - 1
-                    ] + ast_file.body[i].end_col_offset
+                node = ast_file.body[i]
+                assert node.end_lineno and node.end_col_offset
+                end_index = start_offsets[node.end_lineno - 1
+                                          ] + node.end_col_offset
                 i += 1
         if end_index - start_index > max_chunk_size:
             chunks_list.extend(split_chunk(
                 max_chunk_size, int(max_chunk_size * 0.1),
-                start_index, end_index, code, file_path))
+                start_index, end_index, code, str(file_path)))
         else:
             chunks_list.append(
-                MinimalSource(file_path=file_path,
+                MinimalSource(file_path=str(file_path),
                               first_character_index=start_index,
                               last_character_index=end_index,
                               content=code[start_index:end_index]))
@@ -102,7 +105,7 @@ def chunk_python_file(file_path: str,
     return chunks_list
 
 
-def chunk_md_file(file_path: str, max_chunk_size: int) -> list[MinimalSource]:
+def chunk_md_file(file_path: Path, max_chunk_size: int) -> list[MinimalSource]:
     chunks_list: list[MinimalSource] = []
     doc = ""
     with open(file_path) as file:
@@ -133,10 +136,10 @@ def chunk_md_file(file_path: str, max_chunk_size: int) -> list[MinimalSource]:
         if end_index - start_index > max_chunk_size:
             chunks_list.extend(split_chunk(
                 max_chunk_size, int(max_chunk_size * 0.1),
-                start_index, end_index, doc, file_path))
+                start_index, end_index, doc, str(file_path)))
         else:
             chunks_list.append(
-                MinimalSource(file_path=file_path,
+                MinimalSource(file_path=str(file_path),
                               first_character_index=start_index,
                               last_character_index=end_index,
                               content=doc[start_index:end_index]))
@@ -164,5 +167,10 @@ def split_chunk(max_chunk_size: int, overlap_size: int,
     return chunks
 
 
-#def index_chunks():
-#        bm25s.
+def index_chunks(py_chunks: list[MinimalSource],
+                 md_chunks: list[MinimalSource]) -> None:
+    corpus = [_.content for _ in py_chunks + md_chunks]
+    tokeninzed_chunks = bm25s.tokenize(corpus)
+    bm = bm25s.BM25()
+    bm.index(tokeninzed_chunks)
+    bm.save("data/processed/bm25_index", corpus)

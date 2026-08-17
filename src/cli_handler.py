@@ -1,11 +1,24 @@
-from .cli_models import IndexArgs, SearchArgs, SearchDatasetArgs, AnswerArgs
-from .cli_models import AnswerDatasetArgs, EvaluateArgs
+from .models import MinimalSource
+from .cli_models import (IndexArgs, SearchArgs, SearchDatasetArgs, AnswerArgs,
+                         AnswerDatasetArgs, EvaluateArgs)
+from .indexer import (get_vllm_path, get_all_files, chunk_md_file,
+                      chunk_python_file, dump_chunks, index_chunks)
 
 
 class StudentCLI:
     def index(self, *,  max_chunk_size: int = 1000):
-        args = IndexArgs(max_chunk_size=max_chunk_size)
-        print("Index", args)
+        IndexArgs(max_chunk_size=max_chunk_size)
+        vllm_path = get_vllm_path()
+        py_files = get_all_files(vllm_path, ".py")
+        md_files = get_all_files(vllm_path, ".md")
+        md_chunks: list[MinimalSource] = []
+        py_chunks: list[MinimalSource] = []
+        for file in py_files:
+            py_chunks += chunk_python_file(file, max_chunk_size)
+        for file in md_files:
+            md_chunks += chunk_md_file(file, max_chunk_size)
+        dump_chunks(py_chunks, md_chunks)
+        index_chunks(py_chunks, md_chunks)
 
     def search(self, *args, **kargs):
         cargs = SearchArgs()
