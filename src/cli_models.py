@@ -1,13 +1,27 @@
-from pydantic import BaseModel, Field, StrictInt, ConfigDict
-from pydantic import ValidationError, model_validator
+import bm25s
+from pydantic import (BaseModel, Field, StrictInt, ConfigDict,
+                      ValidationError, model_validator, field_validator)
 
 
 class IndexArgs(BaseModel):
-    max_chunk_size: StrictInt = Field(default=2000, ge=500, le=5000)
+    max_chunk_size: StrictInt = Field(default=2000, ge=500)
+
+    @field_validator("max_chunk_size")
+    @classmethod
+    def _hard_cap(cls, value: int) -> int:
+        return value if value <= 2000 else 2000
+
+    def get_params(self) -> dict[int]:
+        return {"max_chunk_size": self.max_chunk_size}
 
 
 class SearchArgs(BaseModel):
-    ...
+    query: str = Field(min_length=1)
+    k: StrictInt = Field(default=5, ge=1)
+
+    def get_params(self) -> dict[int]:
+        return {"query_tokens": bm25s.tokenize(self.query),
+                "k": self.k}
 
 
 class SearchDatasetArgs(BaseModel):

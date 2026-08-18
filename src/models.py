@@ -11,6 +11,7 @@ class MinimalSource(BaseModel):
 
     def dump(self) -> dict:
         return {"file_path": self.file_path,
+                "content": self.content,
                 "first_character_index": self.first_character_index,
                 "last_character_index": self.last_character_index}
 
@@ -49,5 +50,6 @@ class StudentSearchResults(BaseModel):
     k: int
 
 
-class StudentSearchResultsAndAnswer(StudentSearchResults):
+class StudentSearchResultsAndAnswer(BaseModel):
     search_results: List[MinimalAnswer]
+    k: int

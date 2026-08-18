@@ -1,5 +1,5 @@
-import fire
 import os
+import fire
 from .cli_handler import StudentCLI
 
 

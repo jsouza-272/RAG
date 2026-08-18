@@ -8,18 +8,21 @@ from pathlib import Path
 from .models import MinimalSource
 
 
-def get_vllm_path() -> Path:
-    vllm_path_list = ["" + dir_name
-                      for dir_name in os.listdir()
-                      if re.fullmatch("^vllm.*", dir_name)]
-    vllm_path = ""
-    if vllm_path_list:
-        vllm_path = vllm_path_list[0]
-    if not vllm_path:
-        raise FileNotFoundError("vllm not found")
-    path = Path(vllm_path)
+def get_pattern_path(prefix: str = "", prefix_pattern: str = "vllm") -> Path:
+    prefix_path = Path(prefix)
+    if not prefix_path.exists() or not prefix_path.is_dir():
+        raise FileNotFoundError(f"{prefix} not exists")
+    path_list = [str(prefix_path) + '/' + dir_name
+                 for dir_name in os.listdir(prefix_path)
+                 if re.fullmatch(f"^{prefix_pattern}.*", dir_name)]
+    path = ""
+    if path_list:
+        path = path_list[0]
+    if not path:
+        raise FileNotFoundError(f"{prefix_pattern} not found")
+    path = Path(path)
     if not path.is_dir():
-        raise FileNotFoundError("vllm is not directory")
+        raise FileNotFoundError(f"{prefix_pattern} is not directory")
     return path
 
 
@@ -92,7 +95,7 @@ def chunk_python_file(file_path: Path,
                 i += 1
         if end_index - start_index > max_chunk_size:
             chunks_list.extend(split_chunk(
-                max_chunk_size, int(max_chunk_size * 0.1),
+                max_chunk_size, int(max_chunk_size * 0.2),
                 start_index, end_index, code, str(file_path)))
         else:
             chunks_list.append(
@@ -135,7 +138,7 @@ def chunk_md_file(file_path: Path, max_chunk_size: int) -> list[MinimalSource]:
 
         if end_index - start_index > max_chunk_size:
             chunks_list.extend(split_chunk(
-                max_chunk_size, int(max_chunk_size * 0.1),
+                max_chunk_size, int(max_chunk_size * 0.2),
                 start_index, end_index, doc, str(file_path)))
         else:
             chunks_list.append(

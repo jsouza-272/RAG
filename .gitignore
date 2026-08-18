@@ -3,7 +3,7 @@ moulinette_pkg
 vllm-0.10.1
 test.py
 teste.py
-data/
+data/processed
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
