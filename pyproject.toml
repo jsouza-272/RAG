@@ -24,9 +24,13 @@ extend-exclude = [
 	"moulinette*"
 ]
 
+[tool.mypy]
+exclude = ["moulinette*",  "data/", "test"]
+
 [[tool.mypy.overrides]]
 module = ["vllm", "vllm.*"]
 ignore_errors = true
 
-[tool.mypy]
-exclude = "moulinette"
+[[tool.mypy.overrides]]
+module = ["bm25s", "bm25s.*", "fire", "fire*"]
+ignore_missing_imports = true

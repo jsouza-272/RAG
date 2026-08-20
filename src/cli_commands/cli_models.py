@@ -1,4 +1,5 @@
 import bm25s
+from typing import Any
 from pydantic import (BaseModel, Field, StrictInt, ConfigDict,
                       ValidationError, model_validator, field_validator)
 
@@ -11,7 +12,7 @@ class IndexArgs(BaseModel):
     def _hard_cap(cls, value: int) -> int:
         return value if value <= 2000 else 2000
 
-    def get_params(self) -> dict[int]:
+    def get_params(self) -> dict[str, int]:
         return {"max_chunk_size": self.max_chunk_size}
 
 
@@ -19,7 +20,7 @@ class SearchArgs(BaseModel):
     query: str = Field(min_length=1)
     k: StrictInt = Field(default=5, ge=1)
 
-    def get_params(self) -> dict[int]:
+    def get_params(self) -> dict[str, Any]:
         return {"query_tokens": bm25s.tokenize(self.query),
                 "k": self.k}
 
