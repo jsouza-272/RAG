@@ -18,4 +18,16 @@ install:
 run: install
 	$(UV) run python3 -m src $(ARGS)
 
-.PHONY: install
+clean:
+	@rm -rf */__pycache__
+	@rm -rf */*/__pycache__
+	@rm -rf .mypy_cache
+
+lint: install
+	clear
+	$(UV) run flake8
+	$(UV) run mypy . --warn-return-any --warn-unused-ignores \
+	--ignore-missing-imports --disallow-untyped-defs \
+	--check-untyped-defs
+
+.PHONY: install run lint clean

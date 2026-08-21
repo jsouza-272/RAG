@@ -1,24 +1,17 @@
-import bm25s
-from tqdm import tqdm
-from .models import MinimalSource
 from .cli_commands.cli_models import (
-    IndexArgs, SearchArgs, SearchDatasetArgs, AnswerArgs,
+    SearchDatasetArgs, AnswerArgs,
     AnswerDatasetArgs, EvaluateArgs)
-from .cli_commands import Index
+from .cli_commands import Index, Search
 
 
 class StudentCLI:
-    def index(self, *,  max_chunk_size: int = 2000):
+    def index(self, *args,  max_chunk_size: int = 2000):
+        if args:
+            raise ValueError("akjdas")
         Index(max_chunk_size)
 
-    def search(self, query: str, k: int = 5):
-        #args = SearchArgs(query=query, k=k)
-        #path = get_pattern_path("data/processed", "bm25")
-        #retriver = bm25s.BM25().load(str(path))
-        #results, scores = retriver.retrieve(**args.get_params())
-        #print(results[0])
-        #print(scores[0])
-        pass
+    def search(self, query: str, *args, k: int = 5):
+        Search(query, k)
 
     def search_dataset(self, *, dataset_path: str,
                        save_directory: str, k: int = 5):

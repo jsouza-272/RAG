@@ -1,9 +1,13 @@
-datasets_public
 moulinette_pkg
 vllm-0.10.1
 test.py
 teste.py
-data/*
+processed
+raw/*
+# remove
+exams
+evaluations
+#remove
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

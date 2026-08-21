@@ -194,4 +194,4 @@ class Index():
         tokeninzed_chunks = bm25s.tokenize(corpus)
         bm = bm25s.BM25()
         bm.index(tokeninzed_chunks)
-        bm.save("data/processed/bm25_index")
+        bm.save("data/processed/bm25_index", corpus=corpus)

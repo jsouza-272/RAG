@@ -7,14 +7,19 @@ requires-python = ">=3.13"
 dependencies = [
     "bm25s>=0.3.10",
     "fire>=0.7.1",
-    "flake8>=7.3.0",
-    "flake8-pyproject>=1.2.4",
-    "mypy>=2.3.1",
     "pydantic>=2.13.4",
     "pystemmer>=3.1.0",
     "tqdm>=4.70.0",
     "uv>=0.12.5",
     "vllm>=0.26.0",
+]
+
+[dependency-groups]
+dev = [
+    "flake8>=7.3.0",
+    "flake8-pyproject>=1.2.4",
+    "mypy>=2.3.1",
+    "types-tqdm>=4.70.0.20260805",
 ]
 
 [tool.flake8]
@@ -32,5 +37,5 @@ module = ["vllm", "vllm.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["bm25s", "bm25s.*", "fire", "fire*"]
+module = ["bm25s", "bm25s.*", "fire"]
 ignore_missing_imports = true

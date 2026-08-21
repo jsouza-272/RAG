@@ -25,6 +25,18 @@ class MinimalSearchResults(BaseModel):
     question_id: str
     question: str
     retrieved_sources: List[MinimalSource]
+    retrieved_sources_scores: List[float]
+
+    def dump(self) -> dict:
+        return {"question_id": self.question_id,
+                "question": self.question,
+                "retrieved_sources": self.retrieved_sources,
+                "retrieved_sources_scores": self.retrieved_sources_scores}
+
+    def __repr__(self) -> str:
+        return (f"question_id: {self.question_id}\n"
+                f"question: {self.question}\n"
+                f"retrieved_sources: {self.retrieved_sources}\n")
 
 
 class StudentSearchResults(BaseModel):
