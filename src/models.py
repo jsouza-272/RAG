@@ -25,13 +25,15 @@ class MinimalSearchResults(BaseModel):
     question_id: str
     question: str
     retrieved_sources: List[MinimalSource]
-    retrieved_sources_scores: List[float]
 
     def dump(self) -> dict:
-        return {"question_id": self.question_id,
-                "question": self.question,
-                "retrieved_sources": self.retrieved_sources,
-                "retrieved_sources_scores": self.retrieved_sources_scores}
+        return {
+            "question_id": self.question_id,
+            "question": self.question,
+            "retrieved_sources": [
+                min_source.dump() for min_source in self.retrieved_sources
+                ]
+            }
 
     def __repr__(self) -> str:
         return (f"question_id: {self.question_id}\n"
@@ -42,6 +44,14 @@ class MinimalSearchResults(BaseModel):
 class StudentSearchResults(BaseModel):
     search_results: List[MinimalSearchResults]
     k: int
+
+    def dump(self) -> dict:
+        return {
+            "search_results": [
+                min_search.dump() for min_search in self.search_results
+            ],
+            "k": self.k
+        }
 
 
 class UnansweredQuestion(BaseModel):

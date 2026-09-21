@@ -1,3 +1,4 @@
+from pathlib import Path
 import bm25s
 from typing import Any
 from pydantic import (BaseModel, Field, StrictInt, ConfigDict,
@@ -36,10 +37,7 @@ class SearchDatasetArgs(BaseModel):
     def final_validate(self):
         if not self.dataset_path.endswith(".json"):
             raise ValidationError("Invalid dataset_path")
-        try:
-            with open(self.dataset_path):
-                pass
-        except FileNotFoundError:
+        if not Path(self.dataset_path).exists():
             raise ValidationError("File not exist")
         return self
 

@@ -1,7 +1,7 @@
 from .cli_commands.cli_models import (
-    SearchDatasetArgs, AnswerArgs,
+    AnswerArgs,
     AnswerDatasetArgs, EvaluateArgs)
-from .cli_commands import Index, Search
+from .cli_commands import Index, Search, SearchDataset
 
 
 class StudentCLI:
@@ -10,15 +10,12 @@ class StudentCLI:
             raise ValueError("akjdas")
         Index(max_chunk_size)
 
-    def search(self, query: str, *args, k: int = 5):
+    def search(self, query: str, *, k: int = 5):
         Search(query, k)
 
     def search_dataset(self, *, dataset_path: str,
                        save_directory: str, k: int = 5):
-        args = SearchDatasetArgs(dataset_path=dataset_path,
-                                 k=k,
-                                 save_directory=save_directory)
-        print("Search_dataset", args)
+        SearchDataset(dataset_path, save_directory, k)
 
     def answer(self, question: str, *, k: int = 5):
         args = AnswerArgs(question=question, k=k)
