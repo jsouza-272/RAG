@@ -10,7 +10,7 @@ class MinimalSource(BaseModel):
     last_character_index: int
 
     def __repr__(self) -> str:
-        return (f"file_path: {self.file_path!r}\n"
+        return (f"\nfile_path: {self.file_path!r}\n"
                 f"first_character_index: {self.first_character_index}\n"
                 f"last_character_index: {self.last_character_index}\n")
 

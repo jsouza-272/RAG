@@ -1,21 +1,24 @@
-import json
 import bm25s
 from pathlib import Path
-from src.models import RagDataset
-from ..consts import (
-    INDEX_PATH
-)
+from src.models import MinimalSource
+from src.errors import RetrivalError
 
 
-class Search():
-    def __init__(self, query: str, k: int = 5) -> None:
-        args = SearchArgs(query=query, k=k)
-        if not Path(INDEX_PATH).exists():
-            raise FileNotFoundError("data not exists")
-        retriever = bm25s.BM25().load(INDEX_PATH,
-                                      load_corpus=True)
-        retrieved_sources = retriever.retrieve(bm25s.tokenize(args.query),
-                                               k=args.k)
-        print(retrieved_sources.scores)
-        print(retrieved_sources.documents)
-
+def search_query(query: str, k: int, index_path: str,
+                 loaded_chunks: list[MinimalSource]) -> list[MinimalSource]:
+    index = Path(index_path)
+    if not (index.exists() or index.is_dir()):
+        raise RetrivalError("Index not found. Run 'index' first.")
+    retriever = bm25s.BM25.load(index)
+    tokenized_query = bm25s.tokenize(query)
+    retrieved_sources = retriever.retrieve(tokenized_query, k=k)
+    search_results_index = []
+    for i, s in enumerate(retrieved_sources.scores[0]):
+        if not s == 0:
+            search_results_index.append(
+                retrieved_sources.documents[0][i]
+                )
+    search_results: list[MinimalSource] = []
+    for i in search_results_index:
+        search_results.append(loaded_chunks[i])
+    return search_results

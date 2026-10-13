@@ -100,7 +100,8 @@ def parse_query(query: str) -> str:
     return query
 
 
-def parse_student_search_results_path(student_search_results_path: str):
+def parse_student_search_results_path(
+        student_search_results_path: str) -> Path:
     if not isinstance(student_search_results_path, str):
         raise StudentSearchResultsPathError(
             "student_search_results_path must be a string, "
