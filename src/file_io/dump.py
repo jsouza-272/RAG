@@ -1,7 +1,8 @@
 import os
 import json
 from pathlib import Path
-from src.models import MinimalSource
+from src.errors import DumpError
+from src.models import MinimalSource, StudentSearchResults
 
 
 def dump_chunks(chunks: list[MinimalSource], output_file: str) -> None:
@@ -12,7 +13,7 @@ def dump_chunks(chunks: list[MinimalSource], output_file: str) -> None:
                 json.dump([c.model_dump(mode='json') for c in chunks], file,
                           indent=4)
         else:
-            raise PermissionError(
+            raise DumpError(
                 output_file
             )
     else:
@@ -20,3 +21,20 @@ def dump_chunks(chunks: list[MinimalSource], output_file: str) -> None:
         with open(output, mode="w") as file:
             json.dump([c.model_dump(mode='json') for c in chunks], file,
                       indent=4)
+
+
+def dump_search_results(results: StudentSearchResults,
+                        save_dir: Path, dataset: Path) -> None:
+    save_path = save_dir / dataset.name
+    if save_path.exists():
+        if os.access(save_path, os.W_OK):
+            with open(save_path, mode="w") as file:
+                json.dump(results.model_dump(mode="json"), file, indent=4)
+        else:
+            raise DumpError(
+                results
+            )
+    else:
+        save_path.parent.mkdir(mode=0o775, parents=True)
+        with open(save_path, mode="w") as file:
+            json.dump(results.model_dump(mode="json"), file, indent=4)

@@ -9,6 +9,11 @@ class MinimalSource(BaseModel):
     first_character_index: int
     last_character_index: int
 
+    def __str__(self) -> str:
+        return (f"\nfile_path: {self.file_path!r}\n"
+                f"first_character_index: {self.first_character_index}\n"
+                f"last_character_index: {self.last_character_index}\n")
+
     def __repr__(self) -> str:
         return (f"\nfile_path: {self.file_path!r}\n"
                 f"first_character_index: {self.first_character_index}\n"
@@ -16,14 +21,28 @@ class MinimalSource(BaseModel):
 
 
 class MinimalSearchResults(BaseModel):
-    question_id: str
+    question_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     question: str
     retrieved_sources: List[MinimalSource]
+
+    def __str__(self) -> str:
+        return (f"question_id: {self.question_id}\n"
+                f"question: {self.question}\n"
+                f"retrieved_sources: {self.retrieved_sources}")
+
+    def __repr__(self) -> str:
+        return (f"\nquestion_id: {self.question_id}\n"
+                f"question: {self.question}\n"
+                f"retrieved_sources: {self.retrieved_sources}")
 
 
 class StudentSearchResults(BaseModel):
     search_results: List[MinimalSearchResults]
     k: int
+
+    def __str__(self) -> str:
+        return (f"search_results: {self.search_results}\n"
+                f"k: {self.k}")
 
 
 class UnansweredQuestion(BaseModel):

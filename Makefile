@@ -1,6 +1,9 @@
-ifeq ($(shell [ -d $(HOME)/goinfre ] && echo true), true)
+ifeq ($(shell [ -d $(HOME)/goinfre ] && echo 1), 1)
+
 export UV_CACHE_DIR := $(HOME)/goinfre/.cache/uv
+
 export HF_HOME := $(HOME)/goinfre/.cache/huggingface
+
 endif
 
 UV_CHECK = $(shell .venv/bin/python3 -c 'import uv' 2>/dev/null && echo '1' || echo '0')

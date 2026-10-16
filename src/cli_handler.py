@@ -4,11 +4,11 @@ from .cli_commands import (
     index_and_save_chunks, chunk_md_file, chunk_python_file,
     parse_student_search_results_path, parse_save_directory,
     parse_query, parse_max_chunk_size, parse_k, parse_dataset_path,
-    search_query
+    search_query, search_query_dataset
     )
 from .file_io import (
     find_dir_by_pattern, find_files_by_suffix, dump_chunks,
-    load_chunk
+    load_chunk, load_dataset, dump_search_results
 )
 from .models import MinimalSource
 from .consts import (
@@ -44,7 +44,10 @@ class StudentCLI:
         dataset = parse_dataset_path(dataset_path)
         save_directory_path = parse_save_directory(save_directory)
         k = parse_k(k)
-        print(dataset, save_directory_path)
+        ragdataset = load_dataset(dataset)
+        loaded_chunks = load_chunk(Path(CHUNKS_PATH))
+        results = search_query_dataset(ragdataset, k, loaded_chunks)
+        dump_search_results(results, save_directory_path, dataset)
 
     def answer(self, query: str, *, k: int = 5) -> None:
         query = parse_query(query)

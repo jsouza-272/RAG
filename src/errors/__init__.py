@@ -7,9 +7,10 @@ from .scan_errors import (
     )
 from .retrieval_errors import RetrivalError
 from .load_errors import LoadError
+from .dump_errors import DumpError
 
 
 __all__ = ["ParseError", "TopKError", "QueryError", "SaveDirectoryError",
            "StudentSearchResultsPathError", "DataSetPathError",
            "MaxChunkSizeError", "ScanError", "InvalidFileTypeError",
-           "RetrivalError", "LoadError"]
+           "RetrivalError", "LoadError", "DumpError"]
