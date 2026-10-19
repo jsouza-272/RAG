@@ -34,7 +34,8 @@ def find_dir_by_pattern(pattern: str, base_dir_path: str = ".") -> Path:
             f"base_dir must be a directory, got {base_dir!r}"
         )
     cantidades_dir_list = [
-        d for d in tqdm(base_dir.rglob(f"{pattern}*"), "Searching for vllm")
+        d for d in tqdm(base_dir.rglob(f"{pattern}*"),
+                        "Searching for vllm", leave=False)
         if is_valid_dir(d)
     ]
     cantidades_dir_list.sort(key=lambda s: str(s))

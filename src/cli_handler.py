@@ -24,7 +24,7 @@ class StudentCLI:
         py_files = find_files_by_suffix(vllm_path, ".py")
         md_chunks: list[MinimalSource] = []
         py_chunks: list[MinimalSource] = []
-        for file in tqdm(md_files + py_files, "Chunking files"):
+        for file in tqdm(md_files + py_files, "Chunking files", leave=False):
             if file.suffix == ".py":
                 py_chunks += chunk_python_file(file, max_chunk_size)
             else:
@@ -52,14 +52,14 @@ class StudentCLI:
     def answer(self, query: str, *, k: int = 5) -> None:
         query = parse_query(query)
         k = parse_k(k)
-        print(query, k)
+        ...
 
     def answer_dataset(self, student_search_results_path: str = "",
                        save_directory: str = "") -> None:
         student_search_results = parse_student_search_results_path(
             student_search_results_path)
         save_directory_path = parse_save_directory(save_directory)
-        print(student_search_results, save_directory_path)
+        ...
 
     def evaluate(self) -> None:
         ...
