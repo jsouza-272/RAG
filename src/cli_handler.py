@@ -1,4 +1,5 @@
 from tqdm import tqdm
+from typing import Any
 from pathlib import Path
 from .cli_commands import (
     index_and_save_chunks, chunk_md_file, chunk_python_file,
@@ -8,7 +9,7 @@ from .cli_commands import (
     )
 from .file_io import (
     find_dir_by_pattern, find_files_by_suffix, dump_chunks,
-    load_chunk, load_dataset, dump_search_results
+    load_chunk, load_dataset, dump_search_results, valid_txt_parents
 )
 from .models import MinimalSource
 from .consts import (
@@ -17,14 +18,22 @@ from .consts import (
 
 
 class StudentCLI:
-    def index(self, *,  max_chunk_size: int = 2000) -> None:
+    def index(self, *args: Any, max_chunk_size: int = 2000) -> None:
+        if args:
+            raise KeyError(f"ERROR: too many arguments {args}")
         max_chunk_size = parse_max_chunk_size(max_chunk_size)
         vllm_path = find_dir_by_pattern("vllm-")
         md_files = find_files_by_suffix(vllm_path, ".md")
         py_files = find_files_by_suffix(vllm_path, ".py")
+        txt_files = [
+            fpath
+            for fpath in find_files_by_suffix(vllm_path, ".txt")
+            if fpath.parent in valid_txt_parents(vllm_path)
+        ]
         md_chunks: list[MinimalSource] = []
         py_chunks: list[MinimalSource] = []
-        for file in tqdm(md_files + py_files, "Chunking files", leave=False):
+        for file in tqdm(md_files + py_files + txt_files, "Chunking files",
+                         leave=False):
             if file.suffix == ".py":
                 py_chunks += chunk_python_file(file, max_chunk_size)
             else:
@@ -32,15 +41,19 @@ class StudentCLI:
         dump_chunks(md_chunks + py_chunks, CHUNKS_PATH)
         index_and_save_chunks(py_chunks, md_chunks)
 
-    def search(self, query: str, *, k: int = 5) -> None:
+    def search(self, query: str, *args: Any, k: int = 5) -> None:
+        if args:
+            raise KeyError(f"ERROR: too many arguments {args}")
         query = parse_query(query)
         k = parse_k(k)
         loaded_chunks = load_chunk(Path(CHUNKS_PATH))
         results = search_query(query, k, INDEX_PATH, loaded_chunks)
         print(results)
 
-    def search_dataset(self, *, dataset_path: str,
+    def search_dataset(self, *args: Any, dataset_path: str,
                        save_directory: str, k: int = 5) -> None:
+        if args:
+            raise KeyError(f"ERROR: too many arguments {args}")
         dataset = parse_dataset_path(dataset_path)
         save_directory_path = parse_save_directory(save_directory)
         k = parse_k(k)
@@ -49,17 +62,21 @@ class StudentCLI:
         results = search_query_dataset(ragdataset, k, loaded_chunks)
         dump_search_results(results, save_directory_path, dataset)
 
-    def answer(self, query: str, *, k: int = 5) -> None:
+    def answer(self, query: str, *args: Any, k: int = 5) -> None:
+        if args:
+            raise KeyError(f"ERROR: too many arguments {args}")
         query = parse_query(query)
         k = parse_k(k)
         ...
 
-    def answer_dataset(self, student_search_results_path: str = "",
+    def answer_dataset(self, *args: Any, student_search_results_path: str = "",
                        save_directory: str = "") -> None:
+        if args:
+            raise KeyError(f"ERROR: too many arguments {args}")
         student_search_results = parse_student_search_results_path(
             student_search_results_path)
         save_directory_path = parse_save_directory(save_directory)
-        ...
+        print(student_search_results, save_directory_path)
 
     def evaluate(self) -> None:
         ...

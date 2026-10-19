@@ -32,7 +32,7 @@ def dump_search_results(results: StudentSearchResults,
                 json.dump(results.model_dump(mode="json"), file, indent=4)
         else:
             raise DumpError(
-                results
+                f"{results!s}"
             )
     else:
         save_path.parent.mkdir(mode=0o775, parents=True)

@@ -6,11 +6,8 @@ from src.errors import (
 from src.consts import INVALID_PATHS
 
 
-def find_files_by_suffix(dir: Path, suffix: str,
-                         pbar: tqdm | None = None) -> list[Path]:
+def find_files_by_suffix(dir: Path, suffix: str) -> list[Path]:
     file_list: list[Path] = []
-    if isinstance(pbar, tqdm):
-        pbar.update(1)
     for p in dir.iterdir():
         if p.is_file() and p.suffix == suffix:
             file_list.append(p)
@@ -58,3 +55,11 @@ def find_dir_by_pattern(pattern: str, base_dir_path: str = ".") -> Path:
             f"{pattern!r} matched {dir_path!r}, but it is not a directory"
         )
     return dir_path
+
+
+def valid_txt_parents(vllm_path: Path | None = None) -> list[Path]:
+    if not vllm_path:
+        print()
+        vllm_path = find_dir_by_pattern("vllm-")
+    assert vllm_path
+    return [vllm_path, vllm_path / "requirements"]
