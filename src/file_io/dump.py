@@ -17,7 +17,7 @@ def dump_chunks(chunks: list[MinimalSource], output_file: str) -> None:
                 output_file
             )
     else:
-        output.parent.mkdir(mode=0o775, parents=True)
+        output.parent.mkdir(mode=0o775, parents=True, exist_ok=True)
         with open(output, mode="w") as file:
             json.dump([c.model_dump(mode='json') for c in chunks], file,
                       indent=4)
@@ -35,6 +35,6 @@ def dump_search_results(results: StudentSearchResults,
                 f"{results!s}"
             )
     else:
-        save_path.parent.mkdir(mode=0o775, parents=True)
+        save_path.parent.mkdir(mode=0o775, parents=True, exist_ok=True)
         with open(save_path, mode="w") as file:
             json.dump(results.model_dump(mode="json"), file, indent=4)

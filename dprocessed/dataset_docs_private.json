@@ -1,0 +1,17 @@
+{
+    "search_results": [
+        {
+            "question_id": "cabd7283-95cb-4b6c-a5d1-bd7e81caed48",
+            "question": "What vLLM metric tracks the number of requests currently being processed in model execution batches?",
+            "retrieved_sources": [
+                {
+                    "content": "### Metrics Publishing - Prometheus\n\nThe `PrometheusStatLogger` metrics publisher makes the metrics\navailable via a `/metrics` HTTP endpoint in a Prometheus-compatible\nformat. A Prometheus instance can then be configured to poll this\nendpoint (e.g. every second) and record the values in its time-series\ndatabase. Prometheus is often used via Grafana, allowing these metrics\nto be graphed over time.\n\nPrometheus supports the following metric types:\n\n- Counter: a value that will increase over time, never reducing, and\n  generally reset to zero when the vLLM instance restarts. For\n  example, the number of tokens generated over the lifetime of the\n  instance.\n- Gauge: a value that goes up and down, for example the number of\n  requests currently scheduled for execution.\n- Histogram: a count of metric samples, recorded in buckets. For\n  example, the number of requests whose TTFT was <1ms, <5ms, <10ms,\n  <20ms, and so on.\n\nPrometheus metrics can also be labelled, allowing metrics to be\ncombined according to matching labels. In vLLM, we add a `model_name`\nlabel to every metric which includes the name of the model served by\nthat instance.\n\nExample output:\n\n```bash\n$ curl http://0.0.0.0:8000/metrics\n# HELP vllm:num_requests_running Number of requests in model execution batches.\n# TYPE vllm:num_requests_running gauge\nvllm:num_requests_running{model_name=\"meta-llama/Llama-3.1-8B-Instruct\"} 8.0\n...\n# HELP vllm:generation_tokens_total Number of generation tokens processed.\n# TYPE vllm:generation_tokens_total counter\nvllm:generation_tokens_total{model_name=\"meta-llama/Llama-3.1-8B-Instruct\"} 27453.0\n...\n# HELP vllm:request_success_total Count of successfully processed requests.\n# TYPE vllm:request_success_total counter\nvllm:request_success_total{finished_reason=\"stop\",model_name=\"meta-llama/Llama-3.1-8B-Instruct\"} 1.0\nvllm:request_success_total{finished_reason=\"length\",model_name=\"meta-llama/Llama-3.1-8B-Instruct\"} 131.0\nvllm:request_success_total{finished_reason=\"abort\",model_name=\"",
+                    "file_path": "data/raw/vllm-0.10.1/docs/design/metrics.md",
+                    "first_character_index": 12235,
+                    "last_character_index": 14235
+                }
+            ]
+        }
+    ],
+    "k": 1
+}

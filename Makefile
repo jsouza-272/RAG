@@ -1,36 +1,58 @@
 ifeq ($(shell [ -d $(HOME)/goinfre ] && echo 1), 1)
 
 export UV_CACHE_DIR := $(HOME)/goinfre/.cache/uv
-
 export HF_HOME := $(HOME)/goinfre/.cache/huggingface
 
 endif
 
-UV_CHECK = $(shell .venv/bin/python3 -c 'import uv' 2>/dev/null && echo '1' || echo '0')
-UV = .venv/bin/uv
+UV_PROJECT_ENVIRONMENT = ".venv"
+PYTHON = $(UV_PROJECT_ENVIRONMENT)/bin/python3
+PIP = $(UV_PROJECT_ENVIRONMENT)/bin/pip
+UV = $(UV_PROJECT_ENVIRONMENT)/bin/uv
+
+MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
+		--ignore-missing-imports --disallow-untyped-defs \
+		--check-untyped-defs --explicit-package-bases \
+		--namespace-packages
+
+RM = rm -rf
 
 install:
-	@if [ ! -d ".venv" ]; then \
-		python3 -m venv .venv; \
+	@if [ ! -d $(UV_PROJECT_ENVIRONMENT) ]; then \
+		python3 -m venv $(UV_PROJECT_ENVIRONMENT); \
+	elif [ -d $(UV_PROJECT_ENVIRONMENT) ] && [ ! -x $(PYTHON) ]; then \
+		python3 -m venv $(UV_PROJECT_ENVIRONMENT); \
 	fi
-	@if [ "$(UV_CHECK)" = "0" ]; then \
-		.venv/bin/pip install uv; \
+	@if [ ! -x $(UV) ]; then \
+		if [ ! -x $(PIP) ]; then \
+			$(PYTHON) -m ensurepip; \
+		fi; \
+		$(PIP) install uv; \
 	fi
-	.venv/bin/uv sync;
+	$(UV) sync
 
 run: install
 	$(UV) run python3 -m src $(ARGS)
 
+debug: install
+	$(PYTHON) -m pdb pac-man.py $(CONFIG)
+
 clean:
-	@rm -rf */__pycache__
-	@rm -rf */*/__pycache__
-	@rm -rf .mypy_cache
+	@$(RM) -rf */__pycache__
+	@$(RM) -rf */*/__pycache__
+	@$(RM) -rf .mypy_cache
+
+destroy: clean
+	@$(RM) $(UV_PROJECT_ENVIRONMENT)
 
 lint: install
 	clear
-	$(UV) run flake8
-	$(UV) run mypy . --warn-return-any --warn-unused-ignores \
-	--ignore-missing-imports --disallow-untyped-defs \
-	--check-untyped-defs
+	$(PYTHON) -m flake8
+	$(PYTHON) -m mypy $(MYPY_FLAGS) .
 
-.PHONY: install run lint clean
+lint-strict: install
+	clear
+	$(PYTHON) -m flake8
+	$(PYTHON) -m mypy --strict .
+
+.PHONY: install run lint clean destroy lint-strict debug

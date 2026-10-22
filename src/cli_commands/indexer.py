@@ -7,11 +7,10 @@ from pathlib import Path
 from src.models import MinimalSource
 
 
-def index_and_save_chunks(py_chunks: list[MinimalSource],
-                          md_chunks: list[MinimalSource]) -> None:
+def index_and_save_chunks(chunks: list[MinimalSource]) -> None:
     corpus = [
         _.content
-        for _ in tqdm(py_chunks + md_chunks, "Indexing", leave=False)
+        for _ in tqdm(chunks, "Indexing", leave=False)
         ]
     tokeninzed_chunks = bm25s.tokenize(corpus)
     bm = bm25s.BM25()

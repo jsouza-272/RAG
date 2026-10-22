@@ -12,6 +12,7 @@ from .file_io import (
     load_chunk, load_dataset, dump_search_results, valid_txt_parents
 )
 from .models import MinimalSource
+from .llm_wrapper import LLMWrapper
 from .consts import (
     CHUNKS_PATH, INDEX_PATH
 )
@@ -30,16 +31,15 @@ class StudentCLI:
             for fpath in find_files_by_suffix(vllm_path, ".txt")
             if fpath.parent in valid_txt_parents(vllm_path)
         ]
-        md_chunks: list[MinimalSource] = []
-        py_chunks: list[MinimalSource] = []
+        chunks: list[MinimalSource] = []
         for file in tqdm(md_files + py_files + txt_files, "Chunking files",
                          leave=False):
             if file.suffix == ".py":
-                py_chunks += chunk_python_file(file, max_chunk_size)
+                chunks += chunk_python_file(file, max_chunk_size)
             else:
-                md_chunks += chunk_md_file(file, max_chunk_size)
-        dump_chunks(md_chunks + py_chunks, CHUNKS_PATH)
-        index_and_save_chunks(py_chunks, md_chunks)
+                chunks += chunk_md_file(file, max_chunk_size)
+        dump_chunks(chunks, CHUNKS_PATH)
+        index_and_save_chunks(chunks)
 
     def search(self, query: str, *args: Any, k: int = 5) -> None:
         if args:
@@ -67,7 +67,12 @@ class StudentCLI:
             raise KeyError(f"ERROR: too many arguments {args}")
         query = parse_query(query)
         k = parse_k(k)
-        ...
+        loaded_chunks = load_chunk(Path(CHUNKS_PATH))
+        results = search_query(query, k, INDEX_PATH, loaded_chunks)
+        answer = LLMWrapper().generation_pipeline(
+            results.retrieved_sources, query
+            )
+        print(answer)
 
     def answer_dataset(self, *args: Any, student_search_results_path: str = "",
                        save_directory: str = "") -> None:

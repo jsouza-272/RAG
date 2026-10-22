@@ -1389,7 +1389,7 @@
     {
       "question_id": "84a96608-6618-462b-a47c-012f0ac914ac",
       "question": "What causes the NCCL error \"unhandled system error\" during ncclCommInitRank in vLLM distributed serving?",
-      "answer": "The NCCL error \"unhandled system error\" during ncclCommInitRank in vLLM distributed serving is typically caused by a missing  IPC_LOCK Linux capability or an unmounted /dev/shm when using GPUDirect RDMA for multi-node distributed serving.",
+      "answer": "The NCCL error \"unhandled system error\" during ncclCommInitRank in vLLM distributed serving is typically caused by a missing IPC_LOCK Linux capability or an unmounted /dev/shm when using GPUDirect RDMA for multi-node distributed serving.",
       "sources": [
         {
           "file_path": "data/raw/vllm-0.10.1/docs/usage/troubleshooting.md",
