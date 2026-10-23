@@ -1,9 +1,11 @@
 import torch
+from typing import Any
 from src.consts import SYSTEM_PROMPT
 from src.models import MinimalSource
 from transformers import (
     AutoTokenizer, AutoModelForCausalLM,
     SentencePieceBackend, TokenizersBackend,
+    BatchEncoding
 )
 
 
@@ -12,7 +14,9 @@ class LLMWrapper():
         self.tokenizer: TokenizersBackend | SentencePieceBackend = (
             AutoTokenizer.from_pretrained("Qwen/Qwen3-0.6B")
             )
-        self.model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-0.6B")
+        self.model: Any = AutoModelForCausalLM.from_pretrained(
+            "Qwen/Qwen3-0.6B"
+            )
 
     def format_user_prompt(self, chunks: list[MinimalSource],
                            user_prompt: str) -> str:
@@ -45,6 +49,7 @@ class LLMWrapper():
             return_tensors="pt",
             return_dict=True
         )
+        assert isinstance(tokenized_prompt, BatchEncoding)
         pl = len(tokenized_prompt['input_ids'][0])
         with torch.inference_mode():
             answer = self.model.generate(
