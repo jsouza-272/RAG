@@ -8,9 +8,10 @@ from .scan_errors import (
 from .retrieval_errors import RetrivalError
 from .load_errors import LoadError
 from .dump_errors import DumpError
+from .rag_error import RagError
 
 
 __all__ = ["ParseError", "TopKError", "QueryError", "SaveDirectoryError",
            "StudentSearchResultsPathError", "DataSetPathError",
            "MaxChunkSizeError", "ScanError", "InvalidFileTypeError",
-           "RetrivalError", "LoadError", "DumpError"]
+           "RetrivalError", "LoadError", "DumpError", "RagError"]

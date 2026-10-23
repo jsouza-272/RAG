@@ -1,7 +1,7 @@
 import json
 from tempfile import TemporaryFile
 from pathlib import Path
-from src.models import RagDataset
+from src.models import RagDataset, StudentSearchResults
 from pydantic import ValidationError
 from src.errors import (
     TopKError, MaxChunkSizeError, DataSetPathError,
@@ -124,7 +124,7 @@ def parse_student_search_results_path(
             f"existing file, got {student_search_results_path!r}")
     try:
         with open(student_search_results) as file:
-            RagDataset(**json.load(file))
+            StudentSearchResults(**json.load(file))
     except json.JSONDecodeError as error:
         raise StudentSearchResultsPathError(
             "student_search_results_path must contain valid "

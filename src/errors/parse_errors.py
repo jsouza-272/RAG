@@ -1,4 +1,7 @@
-class ParseError(Exception):
+from .rag_error import RagError
+
+
+class ParseError(RagError):
     def __init__(self, argument: str, msg: str) -> None:
         super().__init__(f"ParseError ({argument}): {msg}")
 

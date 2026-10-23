@@ -36,8 +36,33 @@ class MinimalSearchResults(BaseModel):
                 f"retrieved_sources: {self.retrieved_sources}")
 
 
+class MinimalAnswer(MinimalSearchResults):
+    answer: str
+
+    def __str__(self) -> str:
+        return (f"question_id: {self.question_id}\n"
+                f"question: {self.question}\n"
+                f"answer: {self.answer}\n"
+                f"retrieved_sources: {self.retrieved_sources}")
+
+    def __repr__(self) -> str:
+        return (f"question_id: {self.question_id}\n"
+                f"question: {self.question}\n"
+                f"answer: {self.answer}\n"
+                f"retrieved_sources: {self.retrieved_sources}")
+
+
 class StudentSearchResults(BaseModel):
     search_results: List[MinimalSearchResults]
+    k: int
+
+    def __str__(self) -> str:
+        return (f"search_results: {self.search_results}\n"
+                f"k: {self.k}")
+
+
+class StudentSearchResultsAndAnswer(BaseModel):
+    search_results: List[MinimalAnswer]
     k: int
 
     def __str__(self) -> str:
@@ -53,15 +78,6 @@ class UnansweredQuestion(BaseModel):
 class AnsweredQuestion(UnansweredQuestion):
     sources: List[MinimalSource]
     answer: str
-
-
-class MinimalAnswer(MinimalSearchResults):
-    answer: str
-
-
-class StudentSearchResultsAndAnswer(BaseModel):
-    search_results: List[MinimalAnswer]
-    k: int
 
 
 class RagDataset(BaseModel):

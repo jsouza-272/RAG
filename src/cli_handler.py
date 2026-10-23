@@ -1,6 +1,7 @@
 from tqdm import tqdm
 from typing import Any
 from pathlib import Path
+from .llm_wrapper import LLMWrapper
 from .cli_commands import (
     index_and_save_chunks, chunk_md_file, chunk_python_file,
     parse_student_search_results_path, parse_save_directory,
@@ -9,10 +10,12 @@ from .cli_commands import (
     )
 from .file_io import (
     find_dir_by_pattern, find_files_by_suffix, dump_chunks,
-    load_chunk, load_dataset, dump_search_results, valid_txt_parents
+    load_chunk, load_dataset, dump_search_results, valid_txt_parents,
+    load_student_search_results, dump_student_answers
 )
-from .models import MinimalSource
-from .llm_wrapper import LLMWrapper
+from .models import (
+    MinimalSource, MinimalAnswer, StudentSearchResultsAndAnswer
+    )
 from .consts import (
     CHUNKS_PATH, INDEX_PATH
 )
@@ -72,16 +75,42 @@ class StudentCLI:
         answer = LLMWrapper().generation_pipeline(
             results.retrieved_sources, query
             )
-        print(answer)
+        print(MinimalAnswer(
+            question=query,
+            retrieved_sources=results.retrieved_sources,
+            answer=answer
+        ))
 
-    def answer_dataset(self, *args: Any, student_search_results_path: str = "",
-                       save_directory: str = "") -> None:
+    def answer_dataset(self, *args: Any, student_search_results_path: str,
+                       save_directory: str) -> None:
         if args:
             raise KeyError(f"ERROR: too many arguments {args}")
         student_search_results = parse_student_search_results_path(
             student_search_results_path)
         save_directory_path = parse_save_directory(save_directory)
-        print(student_search_results, save_directory_path)
+
+        dataset = load_student_search_results(student_search_results)
+        llm = LLMWrapper()
+        answer_results = []
+        for item in dataset.search_results:
+            answer = llm.generation_pipeline(
+                item.retrieved_sources,
+                item.question
+            )
+            answer_results.append(MinimalAnswer(
+                question_id=item.question_id,
+                question=item.question,
+                retrieved_sources=item.retrieved_sources,
+                answer=answer
+            ))
+        dump_student_answers(
+            StudentSearchResultsAndAnswer(
+                search_results=answer_results,
+                k=dataset.k
+                ),
+            save_dir=save_directory_path,
+            dataset=student_search_results
+        )
 
     def evaluate(self) -> None:
         ...

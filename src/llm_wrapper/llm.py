@@ -1,5 +1,6 @@
-from src.models import MinimalSource
+import torch
 from src.consts import SYSTEM_PROMPT
+from src.models import MinimalSource
 from transformers import (
     AutoTokenizer, AutoModelForCausalLM,
     SentencePieceBackend, TokenizersBackend,
@@ -17,6 +18,8 @@ class LLMWrapper():
                            user_prompt: str) -> str:
         formated_prompt: str = "Context:\n\n"
         for i, c in enumerate(chunks, start=1):
+            if i == 5:
+                break
             formated_prompt += f"Source {i}: {c.file_path}\n{c.content}\n\n"
         if not chunks:
             formated_prompt += ("No documents were retrieved "
@@ -24,7 +27,7 @@ class LLMWrapper():
         return formated_prompt + f"Question: {user_prompt}"
 
     def generation_pipeline(self, chunks: list[MinimalSource],
-                            user_prompt: str) -> (str | list[str]):
+                            user_prompt: str) -> str:
         tokenized_prompt = self.tokenizer.apply_chat_template(
             conversation=[
                 {
@@ -43,8 +46,16 @@ class LLMWrapper():
             return_dict=True
         )
         pl = len(tokenized_prompt['input_ids'][0])
-        answer = self.model.generate(**tokenized_prompt, max_new_tokens=4096)
-        return self.tokenizer.decode(
+        with torch.inference_mode():
+            answer = self.model.generate(
+                **tokenized_prompt,
+                max_new_tokens=512,
+                do_sample=False
+                )
+        decoded_answer = self.tokenizer.decode(
             answer[0][pl:],
             skip_special_tokens=True,
             )
+        if isinstance(decoded_answer, str):
+            return decoded_answer
+        return decoded_answer[0]
