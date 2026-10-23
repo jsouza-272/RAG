@@ -22,7 +22,57 @@ from .consts import (
 
 
 class StudentCLI:
+    """
+    A command-line interface for managing student-related operations,
+    including indexing, searching, and answering queries based on various
+    file types.
+
+    Methods:
+        index(*args: Any, max_chunk_size: int = 2000) -> None:
+            Indexes markdown, Python, and text files, chunking them into
+            manageable sizes and saving the results.
+
+        search(query: str, *args: Any, k: int = 5) -> None:
+            Searches for a query in the indexed chunks and prints the results.
+
+        search_dataset(*args: Any, dataset_path: str, save_directory: str,
+        k: int = 5) -> None:
+            Searches a specified dataset and saves the results to a given
+            directory.
+
+        answer(query: str, *args: Any, k: int = 5) -> None:
+            Generates an answer to a query using a language model and
+            prints the result.
+
+        answer_dataset(*args: Any, student_search_results_path: str,
+        save_directory: str) -> None:
+            Processes a dataset of student search results, generates answers,
+            and saves them to a specified directory.
+
+        evaluate() -> None:
+            Evaluates the performance of the system
+            (implementation not provided).
+    """
+
     def index(self, *args: Any, max_chunk_size: int = 2000) -> None:
+        """
+        Index files and create chunks from markdown, Python, and text files.
+
+        This method processes files found in a specified directory, chunks
+        them into smaller pieces based on a maximum chunk size, and saves the
+        resulting chunks for further indexing.
+
+        Args:
+            max_chunk_size (int, optional): The maximum size of each chunk.
+            Defaults to 2000.
+
+        Raises:
+            KeyError: If any additional arguments are provided to the function.
+
+        Returns:
+            None
+        """
+
         if args:
             raise KeyError(f"ERROR: too many arguments {args}")
         max_chunk_size = parse_max_chunk_size(max_chunk_size)
@@ -45,6 +95,26 @@ class StudentCLI:
         index_and_save_chunks(chunks)
 
     def search(self, query: str, *args: Any, k: int = 5) -> None:
+        """
+        Search for relevant results based on the provided query.
+
+        This method processes the input query,
+        validates the number of arguments,
+        loads necessary data chunks, and retrieves search results.
+        It raises an error if too many arguments are provided.
+
+        Args:
+            query (str): The search query string.
+            *args (Any): Additional arguments (not used).
+            k (int, optional): The number of results to return. Defaults to 5.
+
+        Raises:
+            KeyError: If more than one additional argument is provided.
+
+        Returns:
+            None: This function prints the search results directly.
+        """
+
         if args:
             raise KeyError(f"ERROR: too many arguments {args}")
         query = parse_query(query)
@@ -55,6 +125,23 @@ class StudentCLI:
 
     def search_dataset(self, *args: Any, dataset_path: str,
                        save_directory: str, k: int = 5) -> None:
+        """
+        Searches a dataset and saves the results to a specified directory.
+
+        Args:
+            dataset_path (str): The path to the dataset to be searched.
+            save_directory (str): The directory where the search results
+            will be saved.
+            k (int, optional): The number of results to return. Defaults to 5.
+            *args (Any): Additional arguments. Raises a KeyError if provided.
+
+        Raises:
+            KeyError: If any additional arguments are passed to the function.
+
+        Returns:
+            None
+        """
+
         if args:
             raise KeyError(f"ERROR: too many arguments {args}")
         dataset = parse_dataset_path(dataset_path)
@@ -66,6 +153,26 @@ class StudentCLI:
         dump_search_results(results, save_directory_path, dataset)
 
     def answer(self, query: str, *args: Any, k: int = 5) -> None:
+        """
+        Answers a given query by retrieving relevant information and
+        generating a response.
+
+        Args:
+            query (str): The query string to be processed.
+            *args (Any): Additional arguments that are not used.
+            Raises a KeyError if provided.
+            k (int, optional): The number of results to retrieve.
+            Defaults to 5.
+
+        Raises:
+            KeyError: If any additional arguments are provided beyond
+            the expected ones.
+
+        Returns:
+            None: This function prints the answer to the console
+            and does not return a value.
+        """
+
         if args:
             raise KeyError(f"ERROR: too many arguments {args}")
         query = parse_query(query)
@@ -83,6 +190,28 @@ class StudentCLI:
 
     def answer_dataset(self, *args: Any, student_search_results_path: str,
                        save_directory: str) -> None:
+        """
+        Answers a dataset of student search results and saves the answers to a
+        specified directory.
+
+        This method processes the student search results, generates answers
+        using a language model, and saves the results in a specified directory.
+        It raises an error if any additional arguments are provided.
+
+        Args:
+            student_search_results_path (str): The path to the student search
+            results to be processed.
+            save_directory (str): The directory where the generated answers
+            will be saved.
+
+        Raises:
+            KeyError: If any additional arguments are provided beyond the
+            expected ones.
+
+        Returns:
+            None
+        """
+
         if args:
             raise KeyError(f"ERROR: too many arguments {args}")
         student_search_results = parse_student_search_results_path(

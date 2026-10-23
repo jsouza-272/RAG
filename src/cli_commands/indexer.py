@@ -8,6 +8,25 @@ from src.models import MinimalSource
 
 
 def index_and_save_chunks(chunks: list[MinimalSource]) -> None:
+    """
+    Index and save chunks of text for BM25 retrieval.
+
+    This function takes a list of `MinimalSource` objects, extracts their
+    content, tokenizes it, and indexes it using the BM25 algorithm.
+    The indexed data is then saved to a specified file path.
+
+    Args:
+        chunks (list[MinimalSource]): A list of `MinimalSource` objects
+        containing the text chunks to be indexed.
+
+    Returns:
+        None: This function does not return any value.
+
+    Raises:
+        Any exceptions raised during the indexing or saving process will
+        propagate up to the caller.
+    """
+
     corpus = [
         _.content
         for _ in tqdm(chunks, "Indexing", leave=False)
@@ -19,6 +38,18 @@ def index_and_save_chunks(chunks: list[MinimalSource]) -> None:
 
 
 def build_index_by_line(source: str) -> list[int]:
+    """
+    Builds an index of line start offsets from the given source string.
+
+    Args:
+        source (str): The input string from which to build the index.
+        It can contain multiple lines.
+
+    Returns:
+        list[int]: A list of integers representing the starting offsets of
+        each line in the source string.
+    """
+
     line_start_offsets = [0]
     for line in source.splitlines(keepends=True):
         line_start_offsets.append(line_start_offsets[-1] + len(line))
@@ -28,6 +59,23 @@ def build_index_by_line(source: str) -> list[int]:
 def split_chunk(max_chunk_size: int, overlap_size: int,
                 current_start: int, current_end: int,
                 source: str, path: Path) -> list[MinimalSource]:
+    """
+    Splits a source string into chunks of a specified maximum size with
+    a defined overlap.
+
+    Args:
+        max_chunk_size (int): The maximum size of each chunk.
+        overlap_size (int): The size of the overlap between consecutive chunks.
+        current_start (int): The starting index for the current chunk.
+        current_end (int): The ending index for the current chunk.
+        source (str): The source string to be split into chunks.
+        path (Path): The file path associated with the source string.
+
+    Returns:
+        list[MinimalSource]: A list of MinimalSource objects representing
+        the split chunks.
+    """
+
     step = max_chunk_size - overlap_size
     min_chunks = math.ceil((current_end - current_start) / step)
     chunks: list[MinimalSource] = []
@@ -44,6 +92,25 @@ def split_chunk(max_chunk_size: int, overlap_size: int,
 
 def chunk_python_file(file_path: Path,
                       max_chunk_size: int) -> list[MinimalSource]:
+    """
+    Chunks a Python file into smaller segments based on specified
+    maximum chunk size.
+
+    This function reads a Python file, parses its Abstract Syntax Tree (AST),
+    and divides the code into chunks. Each chunk is either a class definition,
+    a function definition, or a generic block of code. The chunks are created
+    such that their sizes do not exceed the specified maximum chunk size.
+
+    Args:
+        file_path (Path): The path to the Python file to be chunked.
+        max_chunk_size (int): The maximum size of each chunk in characters.
+
+    Returns:
+        list[MinimalSource]: A list of `MinimalSource` objects representing
+        the code chunks, each containing the file path, the starting and
+        ending character indices, and the content of the chunk.
+    """
+
     chunks_list: list[MinimalSource] = []
     code = ""
     with open(file_path) as file:
@@ -100,6 +167,29 @@ def chunk_python_file(file_path: Path,
 
 def chunk_md_file(file_path: Path,
                   max_chunk_size: int) -> list[MinimalSource]:
+    """
+    Chunks a Markdown file into smaller segments based on a specified
+    maximum chunk size.
+
+    Args:
+        file_path (Path): The path to the Markdown file to be chunked.
+        max_chunk_size (int): The maximum size of each chunk in characters.
+
+    Returns:
+        list[MinimalSource]: A list of MinimalSource objects representing the
+        chunks of the Markdown file.
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        ValueError: If max_chunk_size is less than or equal to zero.
+
+    Notes:
+        The function reads the entire content of the Markdown file, identifies
+        sections based on headers and code fences,
+        and splits the content into chunks that do not exceed the specified
+        maximum size.
+    """
+
     chunks_list: list[MinimalSource] = []
     doc = ""
     with open(file_path) as file:
