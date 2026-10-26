@@ -28,23 +28,23 @@ class StudentCLI:
     file types.
 
     Methods:
-        index(*args: Any, max_chunk_size: int = 2000) -> None:
+        index(max_chunk_size: int = 2000) -> None:
             Indexes markdown, Python, and text files, chunking them into
             manageable sizes and saving the results.
 
-        search(query: str, *args: Any, k: int = 5) -> None:
+        search(query: str, k: int = 5) -> None:
             Searches for a query in the indexed chunks and prints the results.
 
-        search_dataset(*args: Any, dataset_path: str, save_directory: str,
+        search_dataset(dataset_path: str, save_directory: str,
         k: int = 5) -> None:
             Searches a specified dataset and saves the results to a given
             directory.
 
-        answer(query: str, *args: Any, k: int = 5) -> None:
+        answer(query: str, k: int = 5) -> None:
             Generates an answer to a query using a language model and
             prints the result.
 
-        answer_dataset(*args: Any, student_search_results_path: str,
+        answer_dataset(student_search_results_path: str,
         save_directory: str) -> None:
             Processes a dataset of student search results, generates answers,
             and saves them to a specified directory.
@@ -73,10 +73,12 @@ class StudentCLI:
             None
         """
 
+        # VALIDAR SE EXISTE DATA/RAW
+
         if args:
             raise KeyError(f"ERROR: too many arguments {args}")
         max_chunk_size = parse_max_chunk_size(max_chunk_size)
-        vllm_path = find_dir_by_pattern("vllm-")
+        vllm_path = find_dir_by_pattern("vllm-", base_dir_path="data/raw")
         md_files = find_files_by_suffix(vllm_path, ".md")
         py_files = find_files_by_suffix(vllm_path, ".py")
         txt_files = [

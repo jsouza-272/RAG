@@ -34,7 +34,7 @@ def index_and_save_chunks(chunks: list[MinimalSource]) -> None:
     tokeninzed_chunks = bm25s.tokenize(corpus)
     bm = bm25s.BM25()
     bm.index(tokeninzed_chunks)
-    bm.save("data/processed/bm25_index", corpus=corpus)
+    bm.save("data/processed/bm25_index")
 
 
 def build_index_by_line(source: str) -> list[int]:

@@ -74,11 +74,11 @@ def find_dir_by_pattern(pattern: str, base_dir_path: str = ".") -> Path:
     base_dir = Path(base_dir_path)
     if not base_dir.exists():
         raise ScanError(
-            f"base_dir does not exist, got {base_dir!r}"
+            f"{base_dir!s} does not exist"
             )
     if not base_dir.is_dir():
         raise InvalidFileTypeError(
-            f"base_dir must be a directory, got {base_dir!r}"
+            f"{base_dir!s} must be a directory"
         )
     cantidades_dir_list = [
         d for d in tqdm(base_dir.rglob(f"{pattern}*"),
@@ -98,11 +98,11 @@ def find_dir_by_pattern(pattern: str, base_dir_path: str = ".") -> Path:
         dir_path = cantidades_dir_list[-1]
     if not dir_path:
         raise ScanError(
-            f"no directory matching {pattern!r} found in {base_dir!r}"
+            f"no directory matching {pattern!s} found in {base_dir!s}"
         )
     if not dir_path.is_dir():
         raise InvalidFileTypeError(
-            f"{pattern!r} matched {dir_path!r}, but it is not a directory"
+            f"{pattern!s} matched {dir_path!s}, but it is not a directory"
         )
     return dir_path
 

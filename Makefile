@@ -35,7 +35,7 @@ run: install
 	$(UV) run python3 -m src $(ARGS)
 
 debug: install
-	$(PYTHON) -m pdb pac-man.py $(CONFIG)
+	$(PYTHON) pdb -m src $(ARGS)
 
 clean:
 	@$(RM) -rf */__pycache__

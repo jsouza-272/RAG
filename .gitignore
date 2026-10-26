@@ -2,12 +2,12 @@ moulinette_pkg
 vllm-0.10.1
 test.py
 teste.py
-processed
-raw/*
+data/*
 # remove
 exams
 evaluations
 #remove
+*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
