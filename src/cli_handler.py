@@ -73,8 +73,6 @@ class StudentCLI:
             None
         """
 
-        # VALIDAR SE EXISTE DATA/RAW
-
         if args:
             raise KeyError(f"ERROR: too many arguments {args}")
         max_chunk_size = parse_max_chunk_size(max_chunk_size)
