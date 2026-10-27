@@ -207,3 +207,8 @@ class StudentSearchResultsPathError(ParseError):
         """
 
         super().__init__("student_search_results_path", msg)
+
+
+class ArgError(ParseError):
+    def __init__(self, msg: str) -> None:
+        super().__init__("too many arguments", msg)

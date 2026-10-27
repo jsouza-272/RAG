@@ -2,6 +2,7 @@ from tqdm import tqdm
 from typing import Any
 from pathlib import Path
 from .llm_wrapper import LLMWrapper
+from .errors import ArgError
 from .cli_commands import (
     index_and_save_chunks, chunk_md_file, chunk_python_file,
     parse_student_search_results_path, parse_save_directory,
@@ -67,14 +68,14 @@ class StudentCLI:
             Defaults to 2000.
 
         Raises:
-            KeyError: If any additional arguments are provided to the function.
+            ArgError: If any additional arguments are provided to the function.
 
         Returns:
             None
         """
 
         if args:
-            raise KeyError(f"ERROR: too many arguments {args}")
+            raise ArgError(f"ERROR: too many arguments {args}")
         max_chunk_size = parse_max_chunk_size(max_chunk_size)
         vllm_path = find_dir_by_pattern("vllm-", base_dir_path="data/raw")
         md_files = find_files_by_suffix(vllm_path, ".md")
@@ -109,14 +110,14 @@ class StudentCLI:
             k (int, optional): The number of results to return. Defaults to 5.
 
         Raises:
-            KeyError: If more than one additional argument is provided.
+            ArgError: If more than one additional argument is provided.
 
         Returns:
             None: This function prints the search results directly.
         """
 
         if args:
-            raise KeyError(f"ERROR: too many arguments {args}")
+            raise ArgError(f"ERROR: too many arguments {args}")
         query = parse_query(query)
         k = parse_k(k)
         loaded_chunks = load_chunk(Path(CHUNKS_PATH))
@@ -133,17 +134,17 @@ class StudentCLI:
             save_directory (str): The directory where the search results
             will be saved.
             k (int, optional): The number of results to return. Defaults to 5.
-            *args (Any): Additional arguments. Raises a KeyError if provided.
+            *args (Any): Additional arguments. Raises a ArgError if provided.
 
         Raises:
-            KeyError: If any additional arguments are passed to the function.
+            ArgError: If any additional arguments are passed to the function.
 
         Returns:
             None
         """
 
         if args:
-            raise KeyError(f"ERROR: too many arguments {args}")
+            raise ArgError(f"ERROR: too many arguments {args}")
         dataset = parse_dataset_path(dataset_path)
         save_directory_path = parse_save_directory(save_directory)
         k = parse_k(k)
@@ -160,12 +161,12 @@ class StudentCLI:
         Args:
             query (str): The query string to be processed.
             *args (Any): Additional arguments that are not used.
-            Raises a KeyError if provided.
+            Raises a ArgError if provided.
             k (int, optional): The number of results to retrieve.
             Defaults to 5.
 
         Raises:
-            KeyError: If any additional arguments are provided beyond
+            ArgError: If any additional arguments are provided beyond
             the expected ones.
 
         Returns:
@@ -174,7 +175,7 @@ class StudentCLI:
         """
 
         if args:
-            raise KeyError(f"ERROR: too many arguments {args}")
+            raise ArgError(f"ERROR: too many arguments {args}")
         query = parse_query(query)
         k = parse_k(k)
         loaded_chunks = load_chunk(Path(CHUNKS_PATH))
@@ -205,7 +206,7 @@ class StudentCLI:
             will be saved.
 
         Raises:
-            KeyError: If any additional arguments are provided beyond the
+            ArgError: If any additional arguments are provided beyond the
             expected ones.
 
         Returns:
@@ -213,7 +214,7 @@ class StudentCLI:
         """
 
         if args:
-            raise KeyError(f"ERROR: too many arguments {args}")
+            raise ArgError(f"ERROR: too many arguments {args}")
         student_search_results = parse_student_search_results_path(
             student_search_results_path)
         save_directory_path = parse_save_directory(save_directory)
@@ -241,5 +242,11 @@ class StudentCLI:
             dataset=student_search_results
         )
 
-    def evaluate(self) -> None:
+    def evaluate(self, *args, student_search_results_path: str,
+                 dataset_path: str) -> None:
+        if args:
+            raise ArgError(f"ERROR: too many arguments {args}")
+        student_search_results = parse_student_search_results_path(
+            student_search_results_path)
+        dataset = parse_dataset_path(dataset_path)
         ...
