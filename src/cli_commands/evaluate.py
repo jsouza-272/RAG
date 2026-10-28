@@ -22,6 +22,7 @@ def search_question(question_id: str,
 
     for i, r in enumerate(student_dataset.search_results):
         if question_id == r.question_id:
+            print(question_id, r.question_id, question_id==r.question_id, i)
             return i
     return -1
 
@@ -70,16 +71,16 @@ def get_next_question(dataset: RagDataset,
     Raises:
         AssertionError: If the dataset contains questions or the
         dataset contains search results.
-        TypeError: If the question is not an instance of AnsweredQuestion.
-        IndexError: If the question index is not found in the student dataset.
+        AssertionError: If the question is not an instance of AnsweredQuestion.
+        AssertionError: If the question index is not found in the student dataset.
     """
 
-    assert not dataset.rag_questions
-    assert not student_dataset.search_results
+    assert dataset.rag_questions
+    assert student_dataset.search_results
     question = dataset.rag_questions.pop()
     question_id = question.question_id
     question_index = search_question(question_id, student_dataset)
-    assert question_index < 0
+    assert question_index >= 0
     assert isinstance(question, AnsweredQuestion)
     return (
         question,
@@ -88,6 +89,20 @@ def get_next_question(dataset: RagDataset,
 
 
 def validade_chunk(src: MinimalSource, student: MinimalSource) -> bool:
+    """Validates whether a student's source chunk is a valid portion of the
+    original source chunk.
+
+    Args:
+        src (MinimalSource): The original source chunk to validate against.
+        student (MinimalSource): The student's source chunk to be validated.
+
+    Returns:
+        bool: True if the student's chunk is a valid portion of the
+        original source chunk, False otherwise.
+        A valid portion is defined as having at least 5% overlap
+        with the union of the two chunks.
+    """
+
     if not src.file_path == student.file_path:
         return False
 
@@ -103,10 +118,57 @@ def validade_chunk(src: MinimalSource, student: MinimalSource) -> bool:
     return inter / union >= 0.05
 
 
-def question_recall() -> float:
-    ...
+def question_recall(src: list[MinimalSource],
+                    student: list[MinimalSource]) -> float:
+    """Calculates the recall score based on the comparison
+    of source materials between a reference list and a student's list.
+
+    Args:
+        src (list[MinimalSource]): A list of reference sources to be recalled.
+        student (list[MinimalSource]): A list of sources provided by
+        the student.
+
+    Returns:
+        float: The recall score, which is the ratio of correctly recalled
+        sources to the total number of reference sources.
+    """
+
+    score = 0
+    for source in src:
+        for student_source in student:
+            if validade_chunk(source, student_source):
+                score += 1
+                break
+    return score / len(src)
 
 
-def recall(dataset_sources: AnsweredQuestion,
-            student_sources: MinimalSearchResults) -> float:
-    ...
+def recall(dataset: RagDataset,
+           student: StudentSearchResults,
+           k: int = 5) -> float:
+    score_sum = 0
+    dataset_size = len(dataset.rag_questions)
+    if student.k < k:
+        raise EvaluateError(
+            f"Student results were searched with k={student.k}, "
+            f"but recall@{k} "
+            f"was requested. Re-run search_dataset with --k >= {k}."
+        )
+    #try:
+    #    for dataset_sources, student_sources in get_next_question(dataset,
+    #                                                              student):
+    #        score_sum += question_recall(
+    #            dataset_sources.sources,
+    #            student_sources.retrieved_sources[:k]
+    #            )
+    #        print("sss", score_sum)
+    #except AssertionError:
+    #    pass
+    for i in range(dataset_size):
+        dataset_sources, student_sources = get_next_question(dataset,
+                                                             student)
+        score_sum += question_recall(
+            dataset_sources.sources,
+            student_sources.retrieved_sources[:k]
+            )
+        print("sss", score_sum)
+    return score_sum / dataset_size

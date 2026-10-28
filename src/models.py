@@ -189,7 +189,7 @@ class StudentSearchResults(BaseModel):
     """
 
     search_results: List[MinimalSearchResults]
-    k: int
+    k: int  
 
     def __str__(self) -> str:
         """

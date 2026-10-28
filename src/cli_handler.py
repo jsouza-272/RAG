@@ -7,7 +7,7 @@ from .cli_commands import (
     index_and_save_chunks, chunk_md_file, chunk_python_file,
     parse_student_search_results_path, parse_save_directory,
     parse_query, parse_max_chunk_size, parse_k, parse_dataset_path,
-    search_query, search_query_dataset
+    search_query, search_query_dataset, recall
     )
 from .file_io import (
     find_dir_by_pattern, find_files_by_suffix, dump_chunks,
@@ -222,7 +222,7 @@ class StudentCLI:
         dataset = load_student_search_results(student_search_results)
         llm = LLMWrapper()
         answer_results = []
-        for item in dataset.search_results:
+        for item in tqdm(dataset.search_results, "Generating answer"):
             answer = llm.generation_pipeline(
                 item.retrieved_sources,
                 item.question
@@ -249,4 +249,6 @@ class StudentCLI:
         student_search_results = parse_student_search_results_path(
             student_search_results_path)
         dataset = parse_dataset_path(dataset_path)
-        ...
+        gt = load_dataset(dataset)
+        student = load_student_search_results(student_search_results)
+        print(recall(gt, student))
