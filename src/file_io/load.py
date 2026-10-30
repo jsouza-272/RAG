@@ -39,30 +39,35 @@ def load_chunk(chunk_file: Path) -> list[MinimalSource]:
 
 def load_dataset(dataset_path: Path) -> RagDataset:
     """
-    Loads a dataset from a specified JSON file.
+    Load a dataset from a JSON file.
+
+    This function reads a JSON file from the specified path and returns a
+    RagDataset object. If the file cannot be read or the JSON is invalid,
+    a LoadError is raised.
 
     Args:
         dataset_path (Path): The path to the JSON file containing the dataset.
 
     Returns:
-        RagDataset: An instance of RagDataset populated with the data from
-        the JSON file.
+        RagDataset: An instance of RagDataset populated with the data from the
+        JSON file.
 
     Raises:
-        LoadError: If the JSON file is invalid or cannot be decoded.
+        LoadError: If the JSON file is invalid or cannot be loaded due to
+        validation errors or decoding issues.
     """
 
     try:
         with open(dataset_path) as file:
             return RagDataset(**json.load(file))
-    except (ValidationError, json.JSONDecodeError):
+    except (ValidationError, json.JSONDecodeError, ValueError):
         raise LoadError("Invalid json format")
 
 
 def load_student_search_results(student_search_results_path: Path
                                 ) -> StudentSearchResults:
     """
-    Load student search results from a JSON file.
+    Loads student search results from a specified JSON file.
 
     Args:
         student_search_results_path (Path): The path to the JSON file
@@ -79,5 +84,5 @@ def load_student_search_results(student_search_results_path: Path
     try:
         with open(student_search_results_path) as file:
             return StudentSearchResults(**json.load(file))
-    except (ValidationError, json.JSONDecodeError):
+    except (ValidationError, json.JSONDecodeError, ValueError):
         raise LoadError("Invalid json format")

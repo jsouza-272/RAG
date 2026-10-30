@@ -251,4 +251,5 @@ class StudentCLI:
         dataset = parse_dataset_path(dataset_path)
         gt = load_dataset(dataset)
         student = load_student_search_results(student_search_results)
-        print(recall(gt, student))
+        print("recall@1:", recall(gt, student, 1))
+        print("recall@5:", recall(gt, student, 5))

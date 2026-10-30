@@ -1,32 +1,38 @@
 import uuid
 from typing import List
-from pydantic import BaseModel, Field
+from pydantic import (
+    BaseModel, Field
+    )
 
 
 class MinimalSource(BaseModel):
     """
-    MinimalSource is a model that represents a source of content with
-    associated metadata.
+    MinimalSource is a model representing a source with content and character
+    indices.
 
     Attributes:
-        content (str): The content of the source.
-        file_path (str): The path to the file containing the content.
-        first_character_index (int): The index of the first character in the
-        content.
-        last_character_index (int): The index of the last character in the
-        content.
+        content (str): The content of the source. Defaults to an empty string.
+        file_path (str): The path to the file associated with the source.
+        first_character_index (int): The index of the first character,
+        must be greater than or equal to 0.
+        last_character_index (int): The index of the last character,
+        must be greater than or equal to 0.
 
     Methods:
-        __str__() -> str: Returns a string representation of the MinimalSource
-        instance.
-        __repr__() -> str: Returns a detailed string representation of the
-        MinimalSource instance for debugging.
+        __str__() -> str:
+            Returns a string representation of the object, including the file
+            path, first character index, and last character index.
+
+        __repr__() -> str:
+            Returns a detailed string representation of the object,
+            including the file path, first character index,
+            and last character index.
     """
 
-    content: str
+    content: str = ""
     file_path: str
-    first_character_index: int
-    last_character_index: int
+    first_character_index: int = Field(ge=0)
+    last_character_index: int = Field(ge=0)
 
     def __str__(self) -> str:
         """
@@ -189,7 +195,7 @@ class StudentSearchResults(BaseModel):
     """
 
     search_results: List[MinimalSearchResults]
-    k: int  
+    k: int
 
     def __str__(self) -> str:
         """
