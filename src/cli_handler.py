@@ -95,7 +95,7 @@ class StudentCLI:
         dump_chunks(chunks, CHUNKS_PATH)
         index_and_save_chunks(chunks)
 
-    def search(self, query: str, *args: Any, k: int = 5) -> None:
+    def search(self, query: str, *args: Any, k: int = 10) -> None:
         """
         Search for relevant results based on the provided query.
 
@@ -107,7 +107,7 @@ class StudentCLI:
         Args:
             query (str): The search query string.
             *args (Any): Additional arguments (not used).
-            k (int, optional): The number of results to return. Defaults to 5.
+            k (int, optional): The number of results to return. Defaults to 10.
 
         Raises:
             ArgError: If more than one additional argument is provided.
@@ -125,7 +125,7 @@ class StudentCLI:
         print(results)
 
     def search_dataset(self, *args: Any, dataset_path: str,
-                       save_directory: str, k: int = 5) -> None:
+                       save_directory: str, k: int = 10) -> None:
         """
         Searches a dataset and saves the results to a specified directory.
 
@@ -133,7 +133,7 @@ class StudentCLI:
             dataset_path (str): The path to the dataset to be searched.
             save_directory (str): The directory where the search results
             will be saved.
-            k (int, optional): The number of results to return. Defaults to 5.
+            k (int, optional): The number of results to return. Defaults to 10.
             *args (Any): Additional arguments. Raises a ArgError if provided.
 
         Raises:
@@ -153,7 +153,7 @@ class StudentCLI:
         results = search_query_dataset(ragdataset, k, loaded_chunks)
         dump_search_results(results, save_directory_path, dataset)
 
-    def answer(self, query: str, *args: Any, k: int = 5) -> None:
+    def answer(self, query: str, *args: Any, k: int = 10) -> None:
         """
         Answers a given query by retrieving relevant information and
         generating a response.
@@ -163,7 +163,7 @@ class StudentCLI:
             *args (Any): Additional arguments that are not used.
             Raises a ArgError if provided.
             k (int, optional): The number of results to retrieve.
-            Defaults to 5.
+            Defaults to 10.
 
         Raises:
             ArgError: If any additional arguments are provided beyond
@@ -244,6 +244,28 @@ class StudentCLI:
 
     def evaluate(self, *args, student_search_results_path: str,
                  dataset_path: str) -> None:
+        """
+        Evaluate the performance of a student search algorithm by calculatin
+        recall metrics.
+
+        This method processes the provided student search results and dataset
+        paths, loads the corresponding data, and computes recall at various
+        thresholds (1, 3, 5, and 10). It raises an error if any additional
+        arguments are provided.
+
+        Args:
+            student_search_results_path (str): The file path to the student
+            search results.
+            dataset_path (str): The file path to the dataset.
+
+        Raises:
+            ArgError: If any additional positional arguments are provided.
+
+        Returns:
+            None: This function does not return a value; it prints the recall
+            metrics to the console.
+        """
+
         if args:
             raise ArgError(f"ERROR: too many arguments {args}")
         student_search_results = parse_student_search_results_path(
@@ -251,5 +273,7 @@ class StudentCLI:
         dataset = parse_dataset_path(dataset_path)
         gt = load_dataset(dataset)
         student = load_student_search_results(student_search_results)
-        print("recall@1:", recall(gt, student, 1))
-        print("recall@5:", recall(gt, student, 5))
+        print("recall@1:", round(recall(gt, student, 1), 2))
+        print("recall@3:", round(recall(gt, student, 3), 2))
+        print("recall@5:", round(recall(gt, student, 5), 2))
+        print("recall@10:", round(recall(gt, student, 10), 2))

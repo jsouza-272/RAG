@@ -9,7 +9,7 @@ from src.errors import (
     )
 
 
-def parse_k(k: int = 5) -> int:
+def parse_k(k: int = 10) -> int:
     """
     Parse the value of k.
 
@@ -19,7 +19,7 @@ def parse_k(k: int = 5) -> int:
     a TopKError is raised.
 
     Args:
-        k (int, optional): The value to be parsed. Defaults to 5.
+        k (int, optional): The value to be parsed. Defaults to 10.
 
     Returns:
         int: The validated positive integer k.
