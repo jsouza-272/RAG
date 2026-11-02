@@ -7,7 +7,7 @@ endif
 
 UV_PROJECT_ENVIRONMENT = ".venv"
 PYTHON = $(UV_PROJECT_ENVIRONMENT)/bin/python3
-PIP = $(UV_PROJECT_ENVIRONMENT)/bin/pip
+PIP = $(UV_PROJECT_ENVIRONMENT)/bin/pip3
 UV = $(UV_PROJECT_ENVIRONMENT)/bin/uv
 
 MYPY_FLAGS = --warn-return-any --warn-unused-ignores \
