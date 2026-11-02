@@ -179,7 +179,7 @@ def recall(dataset: RagDataset,
     """
 
     validate_dataset(dataset)
-    score_sum = 0
+    score_sum = 0.0
     dataset_size = len(dataset.rag_questions)
     if student.k < k:
         raise EvaluateError(

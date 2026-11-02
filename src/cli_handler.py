@@ -242,7 +242,7 @@ class StudentCLI:
             dataset=student_search_results
         )
 
-    def evaluate(self, *args, student_search_results_path: str,
+    def evaluate(self, *args: Any, student_search_results_path: str,
                  dataset_path: str) -> None:
         """
         Evaluate the performance of a student search algorithm by calculatin
