@@ -43,9 +43,8 @@ def parse_max_chunk_size(max_chunk_size: int = 2000) -> int:
 
     This function validates the provided maximum chunk size and ensures
     it adheres to specified constraints.
-    If the input is not a valid integer or is a boolean, it raises
-    a `TopKError`.
-    If the input is less than 500, it raises a `MaxChunkSizeError`.
+    If the input is not a valid integer or is a boolean or
+    input is less than 500, it raises a `MaxChunkSizeError`.
     If the input exceeds 2000, it returns 2000; otherwise, it returns the
     input value.
 
@@ -57,15 +56,15 @@ def parse_max_chunk_size(max_chunk_size: int = 2000) -> int:
         int: The validated maximum chunk size, capped at 2000.
 
     Raises:
-        TopKError: If `max_chunk_size` is not an integer or is a boolean.
-        MaxChunkSizeError: If `max_chunk_size` is less than 500.
+        MaxChunkSizeError: If `max_chunk_size` is less than 500 or
+        is not an integer or is a boolean.
     """
 
     if (not isinstance(max_chunk_size, int)
             or isinstance(max_chunk_size, bool)):
-        raise TopKError("k must be an integer,"
-                        f" got {max_chunk_size!r} "
-                        f"({type(max_chunk_size).__name__})")
+        raise MaxChunkSizeError("k must be an integer,"
+                                f" got {max_chunk_size!r} "
+                                f"({type(max_chunk_size).__name__})")
     if max_chunk_size < 500:
         raise MaxChunkSizeError("max_chunk_size must be at "
                                 f"least 500, got {max_chunk_size}")
